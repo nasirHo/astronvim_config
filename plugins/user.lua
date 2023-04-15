@@ -9,4 +9,23 @@ return {
   --     require("lsp_signature").setup()
   --   end,
   -- },
+  {
+    "catppuccin/nvim",
+    as = "catppuccin",
+    config = function()
+      require("catppuccin").setup {
+        flavour = "frappe",
+        transparent_background = false,
+        integrations = {
+          aerial = true,
+          cmp = true,
+          gitsigns = true,
+          telescope = true,
+          notify = true,
+          mason = true,
+          neotree = true,
+        },
+      }
+    end,
+  },
 }
