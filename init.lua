@@ -27,6 +27,10 @@ return {
   },
 
   lsp = {
+    -- add custom handler
+    setup_handlers = {
+      clangd = function(_, opts) require("clangd_extensions").setup { server = opts } end
+    },
     -- customize lsp formatting options
     formatting = {
       -- control auto formatting on save
@@ -37,6 +41,7 @@ return {
         },
         ignore_filetypes = { -- disable format on save for specified filetypes
           -- "python",
+          "c"
         },
       },
       disabled = { -- disable formatting capabilities for the listed language servers
@@ -52,6 +57,13 @@ return {
     servers = {
       -- "pyright"
     },
+    config = {
+      clangd = {
+        capabilities = {
+          offsetEncoding = "utf-8",
+        }
+      }
+    }
   },
 
   -- Configure require("lazy").setup() options
