@@ -16,9 +16,11 @@ return {
       "lua",
       "make",
       "markdown",
+      "markdown_inline",
       "python",
       "vim",
-      "yaml"
+      "yaml",
+      "regex",
     },
   },
 }
