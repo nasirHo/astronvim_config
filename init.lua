@@ -1,24 +1,21 @@
 return {
   -- Configure AstroNvim updates
   updater = {
-    remote = "origin",     -- remote to use
-    channel = "stable",    -- "stable" or "nightly"
-    version = "latest",    -- "latest", tag name, or regex search like "v1.*" to only do updates before v2 (STABLE ONLY)
-    branch = "nightly",    -- branch name (NIGHTLY ONLY)
-    commit = nil,          -- commit hash (NIGHTLY ONLY)
-    pin_plugins = nil,     -- nil, true, false (nil will pin plugins on stable only)
-    skip_prompts = false,  -- skip prompts about breaking changes
+    remote = "origin", -- remote to use
+    channel = "stable", -- "stable" or "nightly"
+    version = "latest", -- "latest", tag name, or regex search like "v1.*" to only do updates before v2 (STABLE ONLY)
+    branch = "nightly", -- branch name (NIGHTLY ONLY)
+    commit = nil, -- commit hash (NIGHTLY ONLY)
+    pin_plugins = nil, -- nil, true, false (nil will pin plugins on stable only)
+    skip_prompts = false, -- skip prompts about breaking changes
     show_changelog = true, -- show the changelog after performing an update
-    auto_quit = false,     -- automatically quit the current session after a successful update
-    remotes = {            -- easily add new remotes to track
+    auto_quit = false, -- automatically quit the current session after a successful update
+    remotes = { -- easily add new remotes to track
       --   ["remote_name"] = "https://remote_url.come/repo.git", -- full remote url
       --   ["remote2"] = "github_user/repo", -- GitHub user/repo shortcut,
       --   ["remote3"] = "github_user", -- GitHub user assume AstroNvim fork
     },
   },
-
-  -- Set colorscheme to use
-  colorscheme = "catppuccin",
 
   -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
   diagnostics = {
@@ -29,19 +26,20 @@ return {
   lsp = {
     -- add custom handler
     setup_handlers = {
-      clangd = function(_, opts) require("clangd_extensions").setup { server = opts } end
+      -- clangd = function(_, opts) require("clangd_extensions").setup { server = opts } end,
+      -- rust_analyzer = function(_, opts) require("rust-tools").setup { server = opts } end,
     },
     -- customize lsp formatting options
     formatting = {
       -- control auto formatting on save
       format_on_save = {
-        enabled = true,     -- enable or disable format on save globally
+        enabled = true, -- enable or disable format on save globally
         allow_filetypes = { -- enable format on save for specified filetypes only
           -- "go",
         },
         ignore_filetypes = { -- disable format on save for specified filetypes
           -- "python",
-          "c"
+          "c",
         },
       },
       disabled = { -- disable formatting capabilities for the listed language servers
@@ -56,14 +54,37 @@ return {
     -- enable servers that you already have installed without mason
     servers = {
       -- "pyright"
+      "clangd",
     },
     config = {
-      clangd = {
-        capabilities = {
-          offsetEncoding = "utf-8",
+      clangd = function()
+        local clangd_capabilities = vim.lsp.protocol.make_client_capabilities()
+
+        clangd_capabilities.textDocument.completion.completionItem.snippetSupport = true
+        clangd_capabilities.textDocument.completion.completionItem.resolveSupport = {
+          properties = { "documentation", "detail", "additionalTextEdits" },
         }
-      }
-    }
+        clangd_capabilities.offsetEncoding = "utf-8"
+        return {
+          cmd = {
+            "/usr/bin/clangd",
+            "--function-arg-placeholders=0",
+            "--background-index",
+            "-j=8",
+            "--query-driver=/usr/bin/**/clang-*,/bin/clang,/bin/clang++,/usr/bin/gcc,/usr/bin/g++",
+            "--clang-tidy",
+            "--clang-tidy-checks=*",
+            "--all-scopes-completion",
+            "--cross-file-rename",
+            "--completion-style=detailed",
+            "--header-insertion-decorators",
+            "--header-insertion=iwyu",
+            "--pch-storage=memory",
+          },
+          capabilities = clangd_capabilities,
+        }
+      end,
+    },
   },
 
   -- Configure require("lazy").setup() options
@@ -77,10 +98,48 @@ return {
     },
   },
 
+  -- dap = {
+  --   configurations = {
+  --     c = {
+  --       {
+  --         name = "Launch file",
+  --         type = "codelldb",
+  --         request = "launch",
+  --         program = function() return vim.fn.input("Path to executable: " + vim.fn.getcwd() .. "/" + "file") end,
+  --         cwd = function() return vim.fn.input("Directory to cwd: " + vim.fn.getcwd() .. "/" + "directory") end,
+  --         stopOnEntry = false,
+  --       },
+  --     },
+  --   },
+  -- },
+
   -- This function is run last and is a good place to configuring
   -- augroups/autocommands and custom filetypes also this just pure lua so
   -- anything that doesn't fit in the normal config locations above can go here
   polish = function()
+    -- if os.execute("fcitx5-remote") == true then
+    --   local fcitx5_handle = io.popen("fcitx5-remote")
+    --   local fcitx5_state = fcitx5_handle:read("n")
+    --   vim.api.nvim_create_augroup("fcitx5", { clear = true })
+    --   vim.api.nvim_create_autocmd("InsertLeave", {
+    --     desc = "Inactive input method when leaving insert mode",
+    --     pattern = "*",
+    --     group = "fcitx5",
+    --     callback = function()
+    --       fcitx5_handle = io.popen("fcitx5-remote")
+    --       fcitx5_state = fcitx5_handle:read("n")
+    --       os.execute("fcitx5-remote -c")
+    --     end,
+    --   })
+    --   vim.api.nvim_create_autocmd("InsertEnter", {
+    --     desc = "Inactive input method when leaving insert mode",
+    --     pattern = "*",
+    --     group = "fcitx5",
+    --     callback = function()
+    --       os.execute("fcitx5-remote -o")
+    --     end,
+    --   })
+    -- end
     -- Set up custom filetypes
     -- vim.filetype.add {
     --   extension = {
