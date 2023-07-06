@@ -24,5 +24,34 @@ return {
   { import = "astrocommunity.pack.yaml" },
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.utility.noice-nvim" },
+  { import = "astrocommunity.note-taking.obsidian-nvim" },
+  {
+    "epwalsh/obsidian.nvim",
+    event = { "BufReadPre " .. vim.fn.expand "~" .. "/Documents/obsidian-vault/**.md" },
+    opts = {
+      dir = "~/Documents/obsidian-vault",
+      -- Optional, set to true if you don't want Obsidian to manage frontmatter.
+      disable_frontmatter = false,
+      -- Optional, by default when you use `:ObsidianFollowLink` on a link to an external
+      -- URL it will be ignored but you can customize this behavior here.
+      follow_url_func = function(url)
+        -- Open the URL in the default web browser.
+        vim.fn.jobstart { "xdg-open", url } -- linux
+      end,
+      finder = "telescope.nvim",
+    },
+    config = function(_, opts)
+      require("obsidian").setup(opts)
+      -- Optional, override the 'gf' keymap to utilize Obsidian's search functionality.
+      -- see also: 'follow_url_func' config option above.
+      vim.keymap.set("n", "gf", function()
+        if require("obsidian").util.cursor_on_markdown_link() then
+          return "<cmd>ObsidianFollowLink<CR>"
+        else
+          return "gf"
+        end
+      end, { noremap = false, expr = true })
+    end,
+  },
   -- { import = "astrocommunity.completion.copilot-lua-cmp" },
 }

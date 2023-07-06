@@ -33,7 +33,7 @@ return {
     formatting = {
       -- control auto formatting on save
       format_on_save = {
-        enabled = true,     -- enable or disable format on save globally
+        enabled = false,    -- enable or disable format on save globally
         allow_filetypes = { -- enable format on save for specified filetypes only
           -- "go",
         },
@@ -152,5 +152,8 @@ return {
     --     ["~/%.config/foo/.*"] = "fooscript",
     --   },
     -- }
+    vim.api.nvim_create_autocmd("VimLeave", {
+      command = 'set guicursor= | call chansend(v:stderr, "\x1b[ q")',
+    })
   end,
 }
